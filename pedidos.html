@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento de Pedidos</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1d24;
+    --border: #2a2e38;
+    --text: #e8e9ec;
+    --muted: #9aa0ac;
+    --accent: #4f8cff;
+    --accent-hover: #6ea0ff;
+    --ok: #33c17a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  p.sub { color: var(--muted); margin-top: 0; margin-bottom: 24px; font-size: 0.9rem; }
+
+  .search-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .search-box input {
+    flex: 1;
+    min-width: 220px;
+    background: #11141a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  .search-box input:focus { outline: 2px solid var(--accent); }
+  .search-box button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .search-box button:hover { background: var(--accent-hover); }
+
+  .results {
+    margin-top: 28px;
+    display: none;
+  }
+  .results.visible { display: block; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 760px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-header h2 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+  }
+  .code-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  .actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .actions button, .actions a {
+    background: #262b35;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .actions button:hover, .actions a:hover { border-color: var(--accent); }
+  .actions .copied { border-color: var(--ok); color: var(--ok); }
+
+  iframe {
+    width: 100%;
+    height: 480px;
+    border: none;
+    background: #fff;
+  }
+  .fallback-note {
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Seguimiento de Pedidos</h1>
+  <p class="sub">Introduce el código nacional (CTT Express). El código internacional se calcula automáticamente añadiendo "001" al final.</p>
+
+  <div class="search-box">
+    <input type="text" id="codeInput" placeholder="Ej: 0082900082809700989851" autocomplete="off">
+    <button onclick="buscar()">Consultar</button>
+  </div>
+
+  <div class="results" id="results">
+
+    <div class="panel" style="margin-bottom:20px;">
+      <div class="panel-header">
+        <h2>?? 17TRACK — CTT Express (Portugal)</h2>
+        <div class="code-row"><span class="code" id="code17trackDisplay"></span></div>
+      </div>
+      <div id="YQContainer17"></div>
+      <div class="fallback-note">Widget oficial de 17TRACK, insertado directamente en esta página (no es un iframe externo), forzado al operador CTT Express para no depender del autodetectado.</div>
+    </div>
+
+    <div class="grid">
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>?? Seguimiento internacional</h2>
+          <div class="code-row"><span class="code" id="codeInternacionalDisplay"></span></div>
+        </div>
+        <div class="actions">
+          <button id="copyInternacional" onclick="copiar('codeInternacional', 'copyInternacional')">Copiar código</button>
+          <a id="linkInternacional" target="_blank" rel="noopener">Abrir en nueva pestaña ?</a>
+        </div>
+        <iframe id="iframeInternacional" src="about:blank"></iframe>
+        <div class="fallback-note">Esta web no permite rellenar el código por URL de forma fiable: cópialo con el botón y pégalo en su buscador al abrir la pestaña.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function buscar() {
+    const raw = document.getElementById('codeInput').value.trim();
+    if (!raw) return;
+
+    // Si el usuario pega ya el código con "001" al final, no lo dupliques.
+    const nacional = raw.endsWith('001') && raw.length > 21 ? raw.slice(0, -3) : raw;
+    const internacional = nacional + '001';
+
+    document.getElementById('codeInternacionalDisplay').textContent = internacional;
+
+    const urlInternacional = 'http://123.207.250.52:8082/en/trackIndex.htm';
+
+    document.getElementById('linkInternacional').href = urlInternacional;
+    document.getElementById('iframeInternacional').src = urlInternacional;
+
+    window._codeNacional = nacional;
+    window._codeInternacional = internacional;
+
+    document.getElementById('code17trackDisplay').textContent = nacional;
+    document.getElementById('results').classList.add('visible');
+
+    trackVia17Track(nacional);
+  }
+
+  function trackVia17Track(num) {
+    function ejecutar() {
+      YQV5.trackSingle({
+        YQ_ContainerId: "YQContainer17",
+        YQ_Height: 480,
+        YQ_Fc: "100114", // CTT Express (Portugal) — código de operador verificado en el listado oficial de 17TRACK
+        YQ_Lang: "es",
+        YQ_Num: num
+      });
+    }
+    if (window.YQV5) {
+      ejecutar();
+    } else {
+      const s = document.createElement('script');
+      s.src = "https://www.17track.net/externalcall.js";
+      s.onload = ejecutar;
+      document.body.appendChild(s);
+    }
+  }
+
+  function marcarCopiado(btnId) {
+    const btn = document.getElementById(btnId);
+    const original = btn.textContent;
+    btn.textContent = '? Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+  }
+
+  function copiarFallback(text, btnId) {
+    // Funciona en file:// y otros contextos donde navigator.clipboard no está disponible.
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      marcarCopiado(btnId);
+    } catch (err) {
+      const btn = document.getElementById(btnId);
+      btn.textContent = 'No se pudo copiar — selecciona el código manualmente';
+      setTimeout(() => { btn.textContent = 'Copiar código'; }, 2500);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  function copiar(which, btnId) {
+    const text = which === 'codeNacional' ? window._codeNacional : window._codeInternacional;
+    if (!text) return;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+        .then(() => marcarCopiado(btnId))
+        .catch(() => copiarFallback(text, btnId));
+    } else {
+      copiarFallback(text, btnId);
+    }
+  }
+
+  document.getElementById('codeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') buscar();
+  });
+</script>
+</body>
+</html>
