@@ -140,7 +140,7 @@
 <body>
 <div class="wrap">
   <h1>Seguimiento de Pedidos</h1>
-  <p class="sub">Introduce el cÛdigo nacional (CTT Express). El cÛdigo internacional se calcula autom·ticamente aÒadiendo "001" al final.</p>
+  <p class="sub">Introduce el c√≥digo nacional (CTT Express). El c√≥digo internacional se calcula autom√°ticamente a√±adiendo "001" al final.</p>
 
   <div class="search-box">
     <input type="text" id="codeInput" placeholder="Ej: 0082900082809700989851" autocomplete="off">
@@ -151,11 +151,11 @@
 
     <div class="panel" style="margin-bottom:20px;">
       <div class="panel-header">
-        <h2>?? 17TRACK ó CTT Express (Portugal)</h2>
+        <h2>?? 17TRACK ‚Äî CTT Express (Portugal)</h2>
         <div class="code-row"><span class="code" id="code17trackDisplay"></span></div>
       </div>
       <div id="YQContainer17"></div>
-      <div class="fallback-note">Widget oficial de 17TRACK, insertado directamente en esta p·gina (no es un iframe externo), forzado al operador CTT Express para no depender del autodetectado.</div>
+      <div class="fallback-note">Widget oficial de 17TRACK, insertado directamente en esta p√°gina (no es un iframe externo), forzado al operador CTT Express para no depender del autodetectado.</div>
     </div>
 
     <div class="grid">
@@ -166,11 +166,11 @@
           <div class="code-row"><span class="code" id="codeInternacionalDisplay"></span></div>
         </div>
         <div class="actions">
-          <button id="copyInternacional" onclick="copiar('codeInternacional', 'copyInternacional')">Copiar cÛdigo</button>
-          <a id="linkInternacional" target="_blank" rel="noopener">Abrir en nueva pestaÒa ?</a>
+          <button id="copyInternacional" onclick="copiar('codeInternacional', 'copyInternacional')">Copiar c√≥digo</button>
+          <a id="linkInternacional" target="_blank" rel="noopener">Abrir en nueva pesta√±a ?</a>
         </div>
         <iframe id="iframeInternacional" src="about:blank"></iframe>
-        <div class="fallback-note">Esta web no permite rellenar el cÛdigo por URL de forma fiable: cÛpialo con el botÛn y pÈgalo en su buscador al abrir la pestaÒa.</div>
+        <div class="fallback-note">Esta web no permite rellenar el c√≥digo por URL de forma fiable: c√≥pialo con el bot√≥n y p√©galo en su buscador al abrir la pesta√±a.</div>
       </div>
 
     </div>
@@ -182,7 +182,7 @@
     const raw = document.getElementById('codeInput').value.trim();
     if (!raw) return;
 
-    // Si el usuario pega ya el cÛdigo con "001" al final, no lo dupliques.
+    // Si el usuario pega ya el c√≥digo con "001" al final, no lo dupliques.
     const nacional = raw.endsWith('001') && raw.length > 21 ? raw.slice(0, -3) : raw;
     const internacional = nacional + '001';
 
@@ -207,7 +207,7 @@
       YQV5.trackSingle({
         YQ_ContainerId: "YQContainer17",
         YQ_Height: 480,
-        YQ_Fc: "100114", // CTT Express (Portugal) ó cÛdigo de operador verificado en el listado oficial de 17TRACK
+        YQ_Fc: "100114", // CTT Express (Portugal) ‚Äî c√≥digo de operador verificado en el listado oficial de 17TRACK
         YQ_Lang: "es",
         YQ_Num: num
       });
@@ -231,7 +231,7 @@
   }
 
   function copiarFallback(text, btnId) {
-    // Funciona en file:// y otros contextos donde navigator.clipboard no est· disponible.
+    // Funciona en file:// y otros contextos donde navigator.clipboard no est√° disponible.
     const textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.position = 'fixed';
@@ -244,8 +244,8 @@
       marcarCopiado(btnId);
     } catch (err) {
       const btn = document.getElementById(btnId);
-      btn.textContent = 'No se pudo copiar ó selecciona el cÛdigo manualmente';
-      setTimeout(() => { btn.textContent = 'Copiar cÛdigo'; }, 2500);
+      btn.textContent = 'No se pudo copiar ‚Äî selecciona el c√≥digo manualmente';
+      setTimeout(() => { btn.textContent = 'Copiar c√≥digo'; }, 2500);
     }
     document.body.removeChild(textarea);
   }
